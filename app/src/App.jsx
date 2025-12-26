@@ -42,7 +42,7 @@ export default function App() {
   onAdd={todoState.reload}
   categories={categories}
 />
-        <TodoList todos={todoState.todos} />
+<TodoList todos={todoState.todos} onChange={todoState.reload} />
       </main>
     </div>
   );
