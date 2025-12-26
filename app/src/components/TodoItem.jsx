@@ -1,21 +1,20 @@
 import { toggleTodoStatus } from "../db/todoRepo";
 
-export default function TodoItem({ todo, onChange }) {
-  const handleToggle = async () => {
-    await toggleTodoStatus(todo.id);
-    onChange();
-  };
-
+export default function TodoItem({ todo, onToggle }) {
   return (
     <li
-      onClick={handleToggle}
-      style={{
-        cursor: "pointer",
-        textDecoration:
-          todo.status === "completed" ? "line-through" : "none"
-      }}
+      onClick={() => onToggle(todo.id)}
+      className={`bg-white p-4 rounded-lg shadow-sm border-l-4 cursor-pointer
+        ${todo.status === "completed"
+          ? "border-gray-300 opacity-60 line-through"
+          : "border-indigo-500"
+        }`}
     >
-      {todo.title} • {todo.priority}
+      <p className="font-medium">{todo.title}</p>
+      <p className="text-xs text-gray-500">
+        {todo.priority} priority
+      </p>
     </li>
   );
 }
+

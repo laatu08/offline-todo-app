@@ -15,35 +15,51 @@ async function seedCategories() {
   await addCategory({ id: nanoid(), name: "Life" });
 }
 
-
 export default function App() {
   const todoState = useTodos();
   const { categories } = useCategories();
 
-  // useEffect(()=>{
-  //   seedCategories();
-  // },[])
-
   return (
-    <div style={{ display: "flex", gap: 20 }}>
-      <CategoryList
-        categories={categories}
-        active={todoState.categoryId}
-        onSelect={todoState.setCategoryId}
-      />
+    <div className="h-screen grid grid-cols-[260px_1fr] bg-gray-100">
+      
+      {/* Sidebar */}
+      <aside className="bg-white border-r px-5 py-6">
+        <h2 className="text-xl font-semibold mb-6">Offline Todo</h2>
 
-      <main>
-        <h1>Offline Todo</h1>
-        <Filters
-          status={todoState.status}
-          onChange={todoState.setStatus}
+        <CategoryList
+          categories={categories}
+          active={todoState.categoryId}
+          onSelect={todoState.setCategoryId}
         />
-<TodoForm
-  onAdd={todoState.reload}
-  categories={categories}
+      </aside>
+
+      {/* Main */}
+      <main className="p-6 overflow-y-auto">
+        <header className="flex items-center justify-between mb-6">
+          <h1 className="text-2xl font-semibold">My Tasks</h1>
+
+          <Filters
+            status={todoState.status}
+            onChange={todoState.setStatus}
+          />
+        </header>
+
+        <TodoForm
+          onAdd={todoState.loadFirstPage}
+          categories={categories}
+        />
+
+        <TodoList
+  todos={todoState.todos}
+  onLoadMore={todoState.loadMore}
+  onShowLess={todoState.loadFirstPage}
+  hasMore={todoState.hasMore}
+  isExpanded={todoState.isExpanded}
+  reloadCurrent={todoState.reloadCurrent}
 />
-<TodoList todos={todoState.todos} onChange={todoState.reload} />
+
       </main>
     </div>
   );
 }
+
