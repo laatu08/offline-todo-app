@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
-import { getTodosPaginated, toggleTodoStatus } from "../db/todoRepo";
+import {
+  deleteTodoDB,
+  getTodosPaginated,
+  toggleTodoStatus,
+} from "../db/todoRepo";
 
 const PAGE_SIZE = 5;
 
@@ -20,7 +24,7 @@ export function useTodos() {
     const { results, nextKey } = await getTodosPaginated({
       categoryId,
       status,
-      pageSize
+      pageSize,
     });
 
     setTodos(results);
@@ -43,41 +47,62 @@ export function useTodos() {
     load();
   }
 
-
   async function toggleTodoOptimistic(id) {
-      // 1. Optimistically update UI
-  setTodos((prev) =>
-    prev.map((t) =>
-      t.id === id
-        ? {
-            ...t,
-            status: t.status === "pending"
-              ? "completed"
-              : "pending"
-          }
-        : t
-    )
-  );
-
-  // 2. Persist in IndexedDB
-  try {
-    await toggleTodoStatus(id);
-  } catch (err) {
-    // 3. Rollback on failure (rare but correct)
+    // 1. Optimistically update UI
     setTodos((prev) =>
       prev.map((t) =>
         t.id === id
           ? {
               ...t,
-              status: t.status === "pending"
-                ? "completed"
-                : "pending"
+              status: t.status === "pending" ? "completed" : "pending",
             }
           : t
       )
     );
-    console.error(err);
+
+    // 2. Persist in IndexedDB
+    try {
+      await toggleTodoStatus(id);
+    } catch (err) {
+      // 3. Rollback on failure (rare but correct)
+      setTodos((prev) =>
+        prev.map((t) =>
+          t.id === id
+            ? {
+                ...t,
+                status: t.status === "pending" ? "completed" : "pending",
+              }
+            : t
+        )
+      );
+      console.error(err);
+    }
   }
+
+  async function deleteTodoOptimistic(id) {
+    // 1️⃣ Save current state for rollback
+    const prevTodos = todos;
+
+    // 2️⃣ Optimistically remove from UI
+    setTodos((prev) => prev.filter((t) => t.id !== id));
+
+    try {
+      // 3️⃣ Persist deletion
+      await deleteTodoDB(id);
+
+      // 4️⃣ Optional: refill if list shrank and more exists
+      if (hasMore) {
+        reloadCurrent();
+      }
+    } catch (err) {
+      // 5️⃣ Rollback on failure
+      setTodos(prevTodos);
+      console.error(err);
+    }
+  }
+
+  async function refresh() {
+    await load();
   }
 
   // Re-run whenever filters OR pageSize change
@@ -89,15 +114,17 @@ export function useTodos() {
     todos,
     hasMore,
     isExpanded,
+    refresh,
 
     loadMore,
     loadFirstPage,
     reloadCurrent,
     toggleTodoOptimistic,
-    
+    deleteTodoOptimistic,
+
     setCategoryId,
     setStatus,
     categoryId,
-    status
+    status,
   };
 }

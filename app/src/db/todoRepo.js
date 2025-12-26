@@ -128,3 +128,16 @@ export async function getTodosPaginated({ categoryId = null, status = "all", pag
         }
     })
 }
+
+
+export async function deleteTodoDB(id) {
+    const db=await openDB();
+    const tx=db.transaction("todos","readwrite");
+    const store=tx.objectStore("todos");
+
+    return new Promise((resolve, reject)=>{
+        const req=store.delete(id);
+        req.onsuccess=()=>resolve();
+        req.onerror=()=>reject("Delete Failed");
+    })
+}
