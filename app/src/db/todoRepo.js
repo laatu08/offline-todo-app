@@ -29,3 +29,25 @@ export async function getAllTodos() {
         req.onsuccess=()=>resolve(req.result);
     })
 }
+
+export async function getTodosByStatus(status) {
+    const db=await openDB();
+    const tx=db.transaction("todos","readonly");
+    const index=tx.objectStore("todos").index("by_status");
+
+    return new Promise((resolve)=>{
+        const req=index.getAll(status);
+        req.onsuccess=()=>resolve(req.result);
+    })
+}
+
+export async function getTodosByCategory(categoryId) {
+  const db = await openDB();
+  const tx = db.transaction("todos", "readonly");
+  const index = tx.objectStore("todos").index("by_category");
+
+  return new Promise((resolve) => {
+    const req = index.getAll(categoryId);
+    req.onsuccess = () => resolve(req.result);
+  });
+}
