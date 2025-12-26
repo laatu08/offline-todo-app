@@ -56,6 +56,8 @@ export default function App() {
   hasMore={todoState.hasMore}
   isExpanded={todoState.isExpanded}
   reloadCurrent={todoState.reloadCurrent}
+    onToggle={todoState.toggleTodoOptimistic}
+
 />
 
       </main>

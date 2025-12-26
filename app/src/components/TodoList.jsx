@@ -7,7 +7,8 @@ export default function TodoList({
   onShowLess,
   hasMore,
   isExpanded,
-  reloadCurrent
+  reloadCurrent,
+  onToggle,
 }) {
   return (
     <div className="space-y-3">
@@ -15,10 +16,7 @@ export default function TodoList({
         <TodoItem
           key={t.id}
           todo={t}
-          onToggle={async (id) => {
-            await toggleTodoStatus(id);
-            reloadCurrent(); // IMPORTANT
-          }}
+          onToggle={onToggle}
         />
       ))}
 

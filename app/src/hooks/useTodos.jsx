@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getTodosPaginated } from "../db/todoRepo";
+import { getTodosPaginated, toggleTodoStatus } from "../db/todoRepo";
 
 const PAGE_SIZE = 5;
 
@@ -43,6 +43,43 @@ export function useTodos() {
     load();
   }
 
+
+  async function toggleTodoOptimistic(id) {
+      // 1. Optimistically update UI
+  setTodos((prev) =>
+    prev.map((t) =>
+      t.id === id
+        ? {
+            ...t,
+            status: t.status === "pending"
+              ? "completed"
+              : "pending"
+          }
+        : t
+    )
+  );
+
+  // 2. Persist in IndexedDB
+  try {
+    await toggleTodoStatus(id);
+  } catch (err) {
+    // 3. Rollback on failure (rare but correct)
+    setTodos((prev) =>
+      prev.map((t) =>
+        t.id === id
+          ? {
+              ...t,
+              status: t.status === "pending"
+                ? "completed"
+                : "pending"
+            }
+          : t
+      )
+    );
+    console.error(err);
+  }
+  }
+
   // Re-run whenever filters OR pageSize change
   useEffect(() => {
     load();
@@ -56,7 +93,8 @@ export function useTodos() {
     loadMore,
     loadFirstPage,
     reloadCurrent,
-
+    toggleTodoOptimistic,
+    
     setCategoryId,
     setStatus,
     categoryId,
