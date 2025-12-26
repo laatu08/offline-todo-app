@@ -20,7 +20,7 @@ export default function App() {
   const { categories } = useCategories();
 
   return (
-    <div className="h-screen grid grid-cols-[260px_1fr] bg-gray-100">
+<div className="h-full grid grid-cols-[260px_1fr] bg-gray-100">
       
       {/* Sidebar */}
       <aside className="bg-white border-r px-5 py-6">
@@ -34,7 +34,7 @@ export default function App() {
       </aside>
 
       {/* Main */}
-      <main className="p-6 overflow-y-auto">
+<main className="p-6 flex flex-col overflow-hidden">
         <header className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-semibold">My Tasks</h1>
 
@@ -44,21 +44,25 @@ export default function App() {
           />
         </header>
 
-        <TodoForm
-          onAdd={todoState.loadFirstPage}
-          categories={categories}
-        />
+         <div className="mb-4">
+    <TodoForm
+      onAdd={todoState.loadFirstPage}
+      categories={categories}
+    />
+  </div>
 
-        <TodoList
-  todos={todoState.todos}
-  onLoadMore={todoState.loadMore}
-  onShowLess={todoState.loadFirstPage}
-  hasMore={todoState.hasMore}
-  isExpanded={todoState.isExpanded}
-  reloadCurrent={todoState.reloadCurrent}
-    onToggle={todoState.toggleTodoOptimistic}
-
-/>
+        {/* 🔑 Scrollable list only */}
+  <div className="flex-1 overflow-y-auto pr-2">
+    <TodoList
+      todos={todoState.todos}
+      onLoadMore={todoState.loadMore}
+      onShowLess={todoState.loadFirstPage}
+      hasMore={todoState.hasMore}
+      isExpanded={todoState.isExpanded}
+      reloadCurrent={todoState.reloadCurrent}
+      onToggle={todoState.toggleTodoOptimistic}
+    />
+  </div>
 
       </main>
     </div>
